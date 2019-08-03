@@ -19,7 +19,7 @@ class Movies extends Component {
 
     componentDidMount() {
         const movies = getMovies();
-        const genres = getGenres();
+        const genres = [{_id:'', name:'All Genres'}, ...getGenres()];
         this.setState({movies, genres});
     };
 
@@ -41,17 +41,31 @@ class Movies extends Component {
         this.setState({currentPage: page})
     };
 
+    handleGenreSelect = (genre) => {
+        this.setState({selectedGenre: genre, currentPage: 1});
+    };
+
     render() {
-        const {movies, genres, pageSize, currentPage} = this.state;
-        const paginatedMovies = paginate(movies, currentPage, pageSize);
+        const {movies: allMovies, genres, pageSize, currentPage, selectedGenre} = this.state;
+        const filteredMovies = selectedGenre && selectedGenre._id
+            ? allMovies.filter(movie=> movie.genre._id === selectedGenre._id)
+            : allMovies;
+        //const paginatedMovies = paginate(movies, currentPage, pageSize);
+        const paginatedFilteredMovies = paginate(filteredMovies, currentPage, pageSize);
         return (
             <Fragment>
                 <div className="row">
                     <div className="col-sm-3">
-                        <ListGroup genres={genres}/>
+                        <ListGroup
+                            //Since we have added ListGroup.defaultProps we don't have to send them explicity
+/*                            textProperty="name"
+                            valueProperty="_id"*/
+                            items={genres}
+                            selectedItem={selectedGenre}
+                            onItemSelect={this.handleGenreSelect}/>
                     </div>
                     <div className="col">
-                        <p> Total Movies: {movies.length}</p>
+                        <p> Total Movies: {filteredMovies.length}</p>
                         <table className="table">
                             <thead>
                             <tr>
@@ -64,7 +78,7 @@ class Movies extends Component {
                             </tr>
                             </thead>
                             <tbody>
-                            {paginatedMovies.map(movie => (
+                            {paginatedFilteredMovies.map(movie => (
                                 <tr key={movie._id}>
                                     <td>{movie.title}</td>
                                     <td>{movie.genre.name}</td>
@@ -88,7 +102,7 @@ class Movies extends Component {
                         </table>
                         <Pagination
                             onPageChange={this.handlePagination}
-                            totalItem={movies.length}
+                            totalItem={filteredMovies.length}
                             pageSize={pageSize}
                             currentPage={currentPage}
                         />
