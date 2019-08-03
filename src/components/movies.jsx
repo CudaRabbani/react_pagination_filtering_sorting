@@ -1,5 +1,7 @@
 import React, {Component, Fragment} from 'react';
 
+import Like from "./common/like";
+
 import {getMovies} from "../data/fakeMovieService";
 
 class Movies extends Component {
@@ -16,6 +18,14 @@ class Movies extends Component {
         const {movies} = this.state;
         let movieList = movies.filter (m => m._id !== movie._id);
         this.setState({movies: movieList});
+    };
+
+    handleLike = (movie) => {
+        const movies = [...this.state.movies];
+        const index = movies.indexOf(movie);
+        movies[index] = {...movies[index]}; //clone the object that will be changed
+        movies[index].liked = !movies[index].liked;
+        this.setState({movies});
     };
 
     render() {
@@ -41,7 +51,12 @@ class Movies extends Component {
                             <td>{movie.genre.name}</td>
                             <td>{movie.numberInStock}</td>
                             <td>{movie.dailyRentalRate}</td>
-                            <td></td>
+                            <td>
+                                <Like
+                                    onClick={() => this.handleLike(movie)}
+                                    movie={movie}
+                                />
+                            </td>
                             <td>
                                 <button
                                     className="btn btn-danger"
