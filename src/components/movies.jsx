@@ -1,12 +1,17 @@
 import React, {Component, Fragment} from 'react';
 
 import Like from "./common/like";
+import Pagination from "./common/pagination";
+
+import {paginate} from "../util/paginate";
 
 import {getMovies} from "../data/fakeMovieService";
 
 class Movies extends Component {
     state={
-        movies: []
+        movies: [],
+        pageSize: 4,
+        currentPage: 1
     };
 
     componentDidMount() {
@@ -28,11 +33,16 @@ class Movies extends Component {
         this.setState({movies});
     };
 
+    handlePagination = (page) => {
+        this.setState({currentPage: page})
+    };
+
     render() {
-        const {movies} = this.state;
+        const {movies, pageSize, currentPage} = this.state;
+        const paginatedMovies = paginate(movies, currentPage, pageSize);
         return (
             <Fragment>
-                <p> Total Movies: {movies.length} </p>
+                <p> Total Movies: {movies.length}</p>
                 <table className="table">
                     <thead>
                     <tr>
@@ -45,7 +55,7 @@ class Movies extends Component {
                     </tr>
                     </thead>
                     <tbody>
-                    {movies.map(movie => (
+                    {paginatedMovies.map(movie => (
                         <tr key={movie._id}>
                             <td>{movie.title}</td>
                             <td>{movie.genre.name}</td>
@@ -67,6 +77,12 @@ class Movies extends Component {
                     ))}
                     </tbody>
                 </table>
+                <Pagination
+                    onPageChange={this.handlePagination}
+                    totalItem={movies.length}
+                    pageSize={pageSize}
+                    currentPage={currentPage}
+                />
             </Fragment>
         );
     }
