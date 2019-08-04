@@ -1,4 +1,5 @@
 import React, {Component, Fragment} from 'react';
+import _ from 'lodash';
 import MoviesTable from "./moviesTable";
 import Pagination from "./common/pagination";
 
@@ -14,7 +15,8 @@ class Movies extends Component {
         movies: [],
         genres:[],
         pageSize: 4,
-        currentPage: 1
+        currentPage: 1,
+        sortColumn: {path: 'title', order: 'asc'}
     };
 
     componentDidMount() {
@@ -45,13 +47,30 @@ class Movies extends Component {
         this.setState({selectedGenre: genre, currentPage: 1});
     };
 
+    handleSort = (path) => {
+        const sortColumn = {...this.state.sortColumn};
+        if (sortColumn.path === path) {
+            sortColumn.order = (sortColumn.order === 'asc') ? 'desc' : 'asc';
+        }
+        else {
+            sortColumn.path = path;
+            sortColumn.order= 'asc';
+        }
+
+        this.setState({sortColumn});
+    };
+
     render() {
-        const {movies: allMovies, genres, pageSize, currentPage, selectedGenre} = this.state;
+        //first filtering
+        //second sorting
+        //lastly display
+        const {movies: allMovies, genres, pageSize, currentPage, selectedGenre, sortColumn} = this.state;
         const filteredMovies = selectedGenre && selectedGenre._id
             ? allMovies.filter(movie=> movie.genre._id === selectedGenre._id)
             : allMovies;
         //const paginatedMovies = paginate(movies, currentPage, pageSize);
-        const paginatedFilteredMovies = paginate(filteredMovies, currentPage, pageSize);
+        const sortedMovies = _.orderBy(filteredMovies, [sortColumn.path], [sortColumn.order])
+        const paginatedFilteredMovies = paginate(sortedMovies, currentPage, pageSize);
         return (
             <Fragment>
                 <div className="row">
@@ -67,6 +86,7 @@ class Movies extends Component {
                             movies={paginatedFilteredMovies}
                             onLike={this.handleLike}
                             onDelete={this.handleDelete}
+                            onSort={this.handleSort}
                         />
                         <Pagination
                             onPageChange={this.handlePagination}
