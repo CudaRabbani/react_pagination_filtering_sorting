@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from 'react';
-
-import Like from "./common/like";
+import MoviesTable from "./moviesTable";
 import Pagination from "./common/pagination";
 
 import {paginate} from "../util/paginate";
@@ -8,6 +7,7 @@ import {paginate} from "../util/paginate";
 import {getMovies} from "../data/fakeMovieService";
 import ListGroup from "./common/listGroup";
 import {getGenres} from "../data/fakeGenreService";
+
 
 class Movies extends Component {
     state={
@@ -57,49 +57,17 @@ class Movies extends Component {
                 <div className="row">
                     <div className="col-sm-3">
                         <ListGroup
-                            //Since we have added ListGroup.defaultProps we don't have to send them explicity
-/*                            textProperty="name"
-                            valueProperty="_id"*/
                             items={genres}
                             selectedItem={selectedGenre}
                             onItemSelect={this.handleGenreSelect}/>
                     </div>
                     <div className="col">
                         <p> Total Movies: {filteredMovies.length}</p>
-                        <table className="table">
-                            <thead>
-                            <tr>
-                                <th scope="col">Movie</th>
-                                <th scope="col">Genre</th>
-                                <th scope="col">Stock</th>
-                                <th scope="col">Rate</th>
-                                <th scope="col"></th>
-                                <th scope="col"></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {paginatedFilteredMovies.map(movie => (
-                                <tr key={movie._id}>
-                                    <td>{movie.title}</td>
-                                    <td>{movie.genre.name}</td>
-                                    <td>{movie.numberInStock}</td>
-                                    <td>{movie.dailyRentalRate}</td>
-                                    <td>
-                                        <Like
-                                            onClick={() => this.handleLike(movie)}
-                                            movie={movie}
-                                        />
-                                    </td>
-                                    <td>
-                                        <button
-                                            className="btn btn-danger"
-                                            onClick={() => this.handleDelete(movie)}
-                                        >Delete</button>
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
+                        <MoviesTable
+                            movies={paginatedFilteredMovies}
+                            onLike={this.handleLike}
+                            onDelete={this.handleDelete}
+                        />
                         <Pagination
                             onPageChange={this.handlePagination}
                             totalItem={filteredMovies.length}
